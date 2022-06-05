@@ -1,0 +1,142 @@
+﻿@using DataAccess.Enums
+@model KullaniciKayitModel
+
+@{
+    ViewData["Title"] = "Kayıt";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-12">
+        <form asp-action="Kayit">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row mb-3">
+                <label asp-for="KullaniciAdi" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <input asp-for="KullaniciAdi" class="form-control" />
+                    <span asp-validation-for="KullaniciAdi" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label asp-for="Sifre" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <input asp-for="Sifre" class="form-control" type="password" />
+                    <span asp-validation-for="Sifre" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label asp-for="SifreOnay" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <input asp-for="SifreOnay" class="form-control" type="password" />
+                    <span asp-validation-for="SifreOnay" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="Eposta" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <input asp-for="Eposta" class="form-control" type="email" />
+                    <span asp-validation-for="Eposta" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="Adres" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <textarea asp-for="Adres" class="form-control"></textarea>
+                    <span asp-validation-for="Adres" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="Cinsiyet" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <input asp-for="Cinsiyet" type="radio" value="@((int)Cinsiyet.Kadın)" checked /> @Cinsiyet.Kadın
+                    &nbsp;
+                    <input asp-for="Cinsiyet" type="radio" value="@((int)Cinsiyet.Erkek)" /> @Cinsiyet.Erkek
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="UlkeId" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <select asp-for="UlkeId" asp-items="ViewBag.Ulkeler" class="form-control" id="ulkeler">
+                        <option value="">-- Seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="UlkeId" class="text-danger" id="ulkemesaj"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label asp-for="SehirId" class="col-2 col-form-label"></label>
+                <div class="col-5">
+                    <select asp-for="SehirId" asp-items="ViewBag.Sehirler" class="form-control sehirler">
+                        <option value="">-- Ülke Seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="SehirId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="offset-2 col-5">
+                    <input type="submit" value="Kaydet" class="btn btn-primary" />
+                    &nbsp;&nbsp;
+                    <button type="reset" class="btn btn-outline-primary">Temizle</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        //await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    @*<partial name="_ValidationScriptsPartial" />*@
+
+    <script>
+        $(function() {
+            $("#ulkeler").change(function() {
+                var seciliUlkeId = $("#ulkeler").val();
+                $(".sehirler").empty();
+                if (seciliUlkeId == "") {
+                    $("#ulkemesaj").text("Ülke seçiniz...");
+                    $(".sehirler").append('<option value="">-- Ülke Seçiniz --</option>');
+                }
+                else {
+
+                    $.getJSON(
+                        //"/Sehirler/SehirlerGet/" + seciliUlkeId, // Sehirler/SehirlerGet/1
+                        "/Sehirler/SehirlerGet",
+                        { ulkeId: seciliUlkeId },
+                        function(sehirler) {
+                            $(".sehirler").append('<option value="">-- Şehir Seçiniz --</option>');
+                            for (var i = 0; i < sehirler.length; i++) {
+                                $(".sehirler").append('<option value="' + sehirler[i].id + '">' + sehirler[i].adi + '</option>');
+                            }
+                        }
+                    );
+                    //$.ajax({
+                    //	type: "post",
+                    //	url: "/Sehirler/SehirlerPost",
+                    //                data: { ulkeId: seciliUlkeId },
+                    //	cache: false,
+                    //	//contentType: "application/json;charset=utf-8;",
+                    //	dataType: "json",
+                    //                success: function(sehirler) {
+                    //		$(".sehirler").append('<option value="">-- Şehir Seçiniz --</option>');
+                    //		for (var i = 0; i < sehirler.length; i++) {
+                    //			$(".sehirler").append('<option value="' + sehirler[i].id + '">' + sehirler[i].adi + '</option>');
+                    //		}
+                    //	},
+                    //	error: function() {
+                    //                    alert("İşlem sırasında hata oldu!");
+                    //	}
+                    //            });
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,211 @@
+﻿@*@model IEnumerable<DataAccess.Entities.Urun>*@
+@*@model IEnumerable<UrunModel>*@
+@model UrunlerIndexViewModel
+@{
+    ViewData["Title"] = "Ürün Listesi";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (TempData["Mesaj"] != null)
+{
+    <p class="bg-success text-white">
+        @TempData["Mesaj"]
+    </p>
+}
+
+@if (TempData["Success"] != null)
+{
+    <p class="text-success">@TempData["Success"]</p>
+}
+@if (TempData["Error"] != null)
+{
+    <p class="text-danger">@TempData["Error"]</p>
+}
+
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Yeni Ürün</a>
+    </p>
+}
+
+<form asp-action="Index">
+    <div class="row" style="padding-bottom:30px; padding-top:30px;">
+        <div class="col-1">
+            <label asp-for="Filtre.UrunAdi"></label>
+        </div>
+        <div class="col-3">
+            <input class="form-control" asp-for="Filtre.UrunAdi" />
+        </div>
+        <div class="col-1">
+            <label asp-for="Filtre.KategoriId"></label>
+        </div>
+        <div class="col-3">
+            <select class="form-control" asp-for="Filtre.KategoriId" asp-items="@Model.Kategoriler">
+                <option value="">-- Tümü --</option>
+            </select>
+        </div>
+        <div class="col-1">
+            <label asp-for="Filtre.BirimFiyatiBaslangic"></label>
+        </div>
+        <div class="col-3">
+            <div class="input-group">
+                <input class="form-control" asp-for="Filtre.BirimFiyatiBaslangic" />
+                <span class="input-group-text">-</span>
+                <input class="form-control" asp-for="Filtre.BirimFiyatiBitis" />
+            </div>
+
+        </div>
+    </div>
+    <div class="row" style="padding-bottom:30px;">
+        <div class="col-12">
+            <input type="submit" value="Ara" class="btn btn-primary" />
+            &nbsp;&nbsp;
+            <a class="btn btn-outline-primary" asp-action="Index">Temizle</a>
+        </div>
+    </div>
+</form>
+
+
+@if (Model.Urunler != null && Model.Urunler.Count > 0)
+{
+    @*<table class="table">*@
+    <table id="urunler" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Urunler.FirstOrDefault().Adi)
+                </th>
+                @* <th>
+                    @Html.DisplayNameFor(model => model.Aciklamasi)
+                    </th>*@
+
+                @*<th>
+                    @Html.DisplayNameFor(model => model.BirimFiyati)
+                    </th>*@
+                <th>
+                    @Html.DisplayNameFor(model => model.Urunler.FirstOrDefault().BirimFiyatiDisplay)
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Urunler.FirstOrDefault().StokMiktari)
+                </th>
+
+                @*<th>
+                    @Html.DisplayNameFor(model => model.SonKullanmaTarihi)
+                    </th>*@
+                <th>
+                    @Html.DisplayNameFor(model => model.Urunler.FirstOrDefault().SonKullanmaTarihiDisplay) (Yıl-Ay-Gün)
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Urunler.FirstOrDefault().KategoriAdiDisplay)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Urunler.FirstOrDefault().MagazaAdiDisplay)
+                </th>
+                @*<th>
+                    @Html.DisplayNameFor(model => model.Guid)
+                    </th>*@
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Urunler)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Adi)
+                        @*@item.Adi*@
+                    </td>
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.Aciklamasi)
+                        </td>*@
+
+                    @*  <td>
+                        @Html.DisplayFor(modelItem => item.BirimFiyati)
+                        </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BirimFiyatiDisplay)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StokMiktari)
+                    </td>
+
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.SonKullanmaTarihi)
+                        </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SonKullanmaTarihiDisplay)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.KategoriAdiDisplay)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.MagazaAdiDisplay)
+                    </td>
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.Guid)
+                        </td>*@
+                    <td>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            @:cagil@alsac.com
+                            <a asp-action="Details" asp-route-id="@item.Id">Detay</a>
+
+                            @:&nbsp;|&nbsp;
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a>
+
+                                <text>&nbsp;|&nbsp;</text>
+
+                                <a href="#" onclick="sil(@item.Id);">Sil</a>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-danger">Ürün bulunamadı!</p>
+}
+
+@section Scripts {
+<link rel="stylesheet" href="/lib/datatables/css/jquery.dataTables.min.css" />
+<script src="/lib/datatables/js/jquery.dataTables.min.js"></script>
+
+<link href="/lib/AlertifyJS/css/alertify.min.css" rel="stylesheet" />
+<script src="~/lib/AlertifyJS/alertify.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#urunler').DataTable(
+        {
+            language : {
+                url: "/json/datatablesTurkish.json"
+            }
+        });
+    });
+
+    function sil(id) {
+        alertify.confirm("Uyarı!",
+            "Bu ürünü silmek istediğinize emin misiniz?",
+            function(){
+                //alertify.success('Ok');
+                window.location.href = "/Urunler/Delete/" + id;
+            },
+            function(){
+                //alertify.error('İptal');
+            }
+        ).set('labels', { ok: 'Evet', cancel: 'Hayır' });
+    }
+</script>
+}
